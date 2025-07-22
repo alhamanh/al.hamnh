@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جمعية البر الخيرية بمركز الحمنة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Earthy Harmony (Warm neutrals, subtle greens/blues) -->
+    <!-- Application Structure Plan: A single-page application with thematic sections. It starts with a hero banner introducing the charity. Followed by an "About Us" section, then a dedicated section highlighting the strategic location of Al-Hamnah with a conceptual diagram. The core "Our Projects" section uses a tabbed interface to categorize projects into "Welfare" and "Developmental", displaying them as interactive cards. A new "Project Lifecycle" section details the steps for planning and execution. A final "Contact/Support" section encourages engagement. This structure was chosen to provide a clear narrative flow while allowing users to easily navigate and explore specific areas of interest, accommodating an increased number of projects and new content. -->
+    <!-- Visualization & Content Choices:
+        - Hero Section: Goal: Inform. Method: Large text, welcoming message. Justification: Sets the tone and introduces the charity immediately.
+        - About Section: Goal: Inform. Method: Text block. Justification: Provides essential background.
+        - Strategic Location: Goal: Inform/Organize. Method: HTML/CSS conceptual diagram (no actual map) showing Al-Hamnah's position between Makkah and Madinah. Justification: Visually conveys the unique geographical advantage without external libraries or complex mapping.
+        - Projects Section: Goal: Organize/Compare. Method: Tabbed interface (Welfare/Developmental) with project cards. Each card includes project name, type, goal, and brief activities. A donut chart (Chart.js) shows the distribution of project types (welfare vs. developmental). Justification: Tabs allow for clear categorization and easy browsing of numerous projects. Cards provide digestible information. The donut chart gives a quick overview of the charity's focus areas. The project cards container is made scrollable to accommodate the large number of projects.
+        - Project Lifecycle Section: Goal: Inform/Organize. Method: Step-by-step cards with icons and descriptions. Justification: Clearly outlines the systematic approach to project management.
+        - Contact Section: Goal: Inform. Method: Text blocks with updated contact information. Justification: Provides essential contact details.
+        - All charts use Chart.js on Canvas, adhering to the NO SVG/Mermaid rule. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #FDFBF5; /* Light, warm neutral */
+            color: #3A3A3A; /* Dark gray for text */
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #3A3A3A;
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #5A5A5A;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 2.5rem;
+        }
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background-color: #A3B18A; /* Subtle green accent */
+            margin: 0.75rem auto 0;
+            border-radius: 2px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+        .nav-link {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            cursor: pointer;
+            background-color: #E0E0E0; /* Light gray for inactive tabs */
+            color: #5A5A5A;
+        }
+        .nav-link.active {
+            background-color: #A3B18A; /* Active tab color */
+            color: white;
+            box-shadow: 0 4px 10px rgba(163, 177, 138, 0.3);
+        }
+        .project-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .project-type-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .type-welfare {
+            background-color: #DDEBE0; /* Light green */
+            color: #4A6B5B; /* Darker green */
+        }
+        .type-developmental {
+            background-color: #E0EBF0; /* Light blue */
+            color: #4A6B7B; /* Darker blue */
+        }
+        .location-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        .location-point {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background-color: #F8F8F8;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            min-width: 120px;
+        }
+        .location-point.main {
+            background-color: #A3B18A;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(163, 177, 138, 0.4);
+        }
+        .arrow {
+            font-size: 2rem;
+            color: #8B9A7B;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px; /* Smaller max-width for donut chart */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        #projects-container {
+            max-height: 800px; /* Limit height to make it scrollable */
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding-right: 1rem; /* Padding for scrollbar */
+        }
+        .project-step-card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+        .step-icon {
+            font-size: 2.5rem;
+            color: #A3B18A;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#FDFBF5]/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-[#4A6B5B]">جمعية البر الخيرية</h1>
+            <div id="nav-links" class="hidden md:flex items-center space-x-4 space-x-reverse">
+                <a href="#hero" class="nav-link">الرئيسية</a>
+                <a href="#about" class="nav-link">عن الجمعية</a>
+                <a href="#location" class="nav-link">موقعنا</a>
+                <a href="#projects" class="nav-link">مشاريعنا</a>
+                <a href="#project-lifecycle" class="nav-link">خطط العمل</a>
+                <a href="#contact" class="nav-link">تواصل معنا</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 md:py-32 bg-gradient-to-b from-[#FDFBF5] to-[#F5F1E8]">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-4xl md:text-6xl font-black text-[#3A3A3A] leading-tight">
+                    جمعية البر الخيرية بمركز الحمنة
+                </h2>
+                <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                    نعمل من أجل مجتمع مزدهر ومستدام، خدمةً لأهلنا وضيوف الرحمن.
+                </p>
+                <a href="#projects" class="mt-8 inline-block bg-[#A3B18A] text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-[#8B9A7B] transition-colors duration-300">
+                    اكتشف مشاريعنا
+                </a>
+            </div>
+        </section>
+
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <h3 class="section-title">عن الجمعية</h3>
+                <p class="section-subtitle">
+                    جمعية البر الخيرية بمركز الحمنة هي منظمة غير ربحية تسعى لتقديم الدعم والرعاية للفئات الأكثر احتياجاً في المجتمع المحلي، والمساهمة في التنمية المستدامة للمركز. نؤمن بأهمية العمل الخيري المنظم والمستدام لتحقيق أثر إيجابي ودائم.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
+                    <div class="card">
+                        <div class="text-5xl mb-4">🤝</div>
+                        <h4 class="font-bold text-xl mb-2">رسالتنا</h4>
+                        <p class="text-gray-600">تقديم خدمات رعوية وتنموية شاملة ومستدامة، تعزز من جودة حياة الأفراد والأسر في مركز الحمنة، وتساهم في بناء مجتمع متكافل ومزدهر.</p>
+                    </div>
+                    <div class="card">
+                        <div class="text-5xl mb-4">🌟</div>
+                        <h4 class="font-bold text-xl mb-2">رؤيتنا</h4>
+                        <p class="text-gray-600">أن نكون الجمعية الرائدة في العمل الخيري والتنموي بمركز الحمنة، نموذجاً يحتذى به في العطاء والابتكار، وشريكاً فاعلاً في تحقيق رؤية المملكة 2030.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="location" class="py-20 bg-[#F5F1E8]">
+            <div class="container mx-auto px-6">
+                <h3 class="section-title">موقعنا الاستراتيجي</h3>
+                <p class="section-subtitle">
+                    يقع مركز الحمنة على طريق الهجرة، وهو الشريان الحيوي الذي يربط بين أقدس مدينتين في الإسلام: مكة المكرمة والمدينة المنورة. هذا الموقع يمنح الجمعية دوراً فريداً في خدمة المجتمع المحلي وضيوف الرحمن العابرين.
+                </p>
+                <div class="card p-8">
+                    <h4 class="font-bold text-xl mb-6 text-center">الحمنة: نقطة وصل بين الحرمين الشريفين</h4>
+                    <div class="location-diagram">
+                        <div class="location-point">مكة المكرمة</div>
+                        <div class="arrow">➡️</div>
+                        <div class="location-point main">مركز الحمنة</div>
+                        <div class="arrow">➡️</div>
+                        <div class="location-point">المدينة المنورة</div>
+                    </div>
+                    <p class="text-center text-gray-600 mt-8">
+                        يسمح لنا هذا الموقع بتقديم الدعم للمسافرين والحجاج والمعتمرين الذين يعبرون المنطقة، بالإضافة إلى خدمة سكان المركز.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <h3 class="section-title">مشاريعنا التنموية والرعوية</h3>
+                <p class="section-subtitle">
+                    نعمل على مجموعة متنوعة من المشاريع التي تهدف إلى تحقيق أثر مستدام في مجتمع الحمنة، مقسمة بين الرعاية المباشرة والتنمية طويلة الأمد.
+                </p>
+
+                <div class="flex justify-center mb-8 space-x-4 space-x-reverse">
+                    <button class="nav-link active" data-filter="all">جميع المشاريع</button>
+                    <button class="nav-link" data-filter="welfare">مشاريع رعوية</button>
+                    <button class="nav-link" data-filter="developmental">مشاريع تنموية</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 md:col-span-2 flex flex-col items-center justify-center">
+                        <h4 class="font-bold text-xl mb-4 text-center">توزيع أنواع المشاريع</h4>
+                        <div class="chart-container">
+                            <canvas id="projectTypeChart"></canvas>
+                        </div>
+                        <p class="text-center text-gray-600 mt-4">نوازن بين المشاريع الرعوية التي تقدم الدعم الفوري، والمشاريع التنموية التي تبني قدرات المجتمع على المدى الطويل.</p>
+                    </div>
+                    <div class="lg:col-span-2 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6" id="projects-container">
+                        <!-- Projects will be loaded here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="project-lifecycle" class="py-20 bg-[#F5F1E8]">
+            <div class="container mx-auto px-6">
+                <h3 class="section-title">خطط دراسة المشاريع وإعدادها</h3>
+                <p class="section-subtitle">
+                    نتبع منهجية منظمة في دراسة وإعداد وتنفيذ مشاريعنا لضمان أقصى فعالية وأثر مستدام.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="project-step-card">
+                        <div class="step-icon">💡</div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">1. الفكرة وتحديد الحاجة</h4>
+                            <p class="text-gray-600 text-sm">تحديد المشكلات والفرص، وصياغة الأهداف الأولية للمشروع بناءً على احتياجات المجتمع.</p>
+                        </div>
+                    </div>
+                    <div class="project-step-card">
+                        <div class="step-icon">📊</div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">2. دراسة الجدوى</h4>
+                            <p class="text-gray-600 text-sm">تحليل الموارد المتاحة، تقييم المخاطر، ودراسة الجدوى المالية والاجتماعية والبيئية للمشروع.</p>
+                        </div>
+                    </div>
+                    <div class="project-step-card">
+                        <div class="step-icon">📝</div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">3. التخطيط التفصيلي</h4>
+                            <p class="text-gray-600 text-sm">وضع خطة عمل مفصلة، تحديد الأنشطة، الجداول الزمنية، الميزانية، ومؤشرات الأداء الرئيسية.</p>
+                        </div>
+                    </div>
+                    <div class="project-step-card">
+                        <div class="step-icon">💰</div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">4. حشد الموارد</h4>
+                            <p class="text-gray-600 text-sm">البحث عن مصادر التمويل، كتابة مقترحات للمانحين، وإقامة شراكات استراتيجية.</p>
+                        </div>
+                    </div>
+                    <div class="project-step-card">
+                        <div class="step-icon">🚀</div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">5. التنفيذ والإدارة</h4>
+                            <p class="text-gray-600 text-sm">إطلاق المشروع، إدارة الأنشطة اليومية، والإشراف على سير العمل لضمان تحقيق الأهداف.</p>
+                        </div>
+                    </div>
+                    <div class="project-step-card">
+                        <div class="step-icon">📈</div>
+                        <div>
+                            <h4 class="font-bold text-lg mb-1">6. المتابعة والتقييم</h4>
+                            <p class="text-gray-600 text-sm">مراقبة التقدم، قياس الأثر، تحليل النتائج، وتقديم التقارير لضمان التحسين المستمر.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h3 class="section-title">تواصل معنا وادعم مسيرتنا</h3>
+                <p class="section-subtitle">
+                    مساهمتكم تصنع الفارق. ندعوكم لتكونوا جزءاً من رحلة العطاء والتنمية في مركز الحمنة.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card">
+                        <h4 class="font-bold text-xl mb-4">كيف يمكنك المساعدة؟</h4>
+                        <ul class="list-disc list-inside text-right space-y-2 text-gray-600">
+                            <li>التبرع المالي للمشاريع.</li>
+                            <li>التطوع بوقتك وخبراتك.</li>
+                            <li>نشر الوعي عن مشاريعنا.</li>
+                            <li>الشراكة معنا كجهة داعمة.</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4 class="font-bold text-xl mb-4">معلومات الاتصال</h4>
+                        <p class="text-gray-600 text-right">
+                            <strong class="block mb-1">العنوان:</strong> مركز الحمنة، المدينة المنورة، المملكة العربية السعودية.
+                        </p>
+                        <p class="text-gray-600 text-right">
+                            <strong class="block mb-1">البريد الإلكتروني:</strong> al.hamnh.a22@gmail.com
+                        </p>
+                        <p class="text-gray-600 text-right">
+                            <strong class="block mb-1">الهاتف:</strong> 0555651148
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#3A3A3A] text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 - جمعية البر الخيرية بمركز الحمنة. جميع الحقوق محفوظة.</p>
+            <p class="text-sm text-gray-400 mt-2">نعمل بشفافية ومسؤولية لتحقيق التنمية المستدامة.</p>
+        </div>
+    </footer>
+
+    <script>
+        const projectsData = [
+            { name: "برنامج 'سلة الخير المستدامة'", type: "رعوي", goal: "توفير الأمن الغذائي بكرامة واستدامة.", activities: "توزيع سلال غذائية شهرية، شراكة مع مزارع محلية، مبادرة 'حديقة المنزل'." },
+            { name: "مركز 'مهارات المستقبل'", type: "تنموي", goal: "تمكين الشباب والنساء بالتدريب المهني.", activities: "ورش عمل حرف يدوية، دورات تقنيات رقمية، برامج ريادة أعمال." },
+            { name: "مشروع 'واحة الحمنة الخضراء'", type: "تنموي", goal: "تحسين البيئة وزيادة المساحات الخضراء.", activities: "حملات تشجير، توعية بترشيد المياه، حدائق مجتمعية." },
+            { name: "مبادرة 'رعاية ضيوف الرحمن العابرين'", type: "رعوي", goal: "تقديم الدعم والخدمات لضيوف الرحمن.", activities: "إنشاء نقطة استراحة، توفير معلومات إرشادية، مساعدة طارئة." },
+            { name: "برنامج 'صحة المجتمع'", type: "رعوي", goal: "تعزيز الوعي الصحي وتقديم خدمات أولية.", activities: "حملات توعية صحية، فحص طبي أولي، ورش إسعافات أولية." },
+            { name: "مشروع 'التمور المحلية: من المزرعة إلى السوق'", type: "تنموي", goal: "دعم مزارعي التمور وتسويق منتجاتهم.", activities: "مساعدة في تحسين الجودة، تنظيم أسواق مؤقتة، ربط بالأسواق الكبرى." },
+            { name: "'ملتقى الحمنة الاجتماعي'", type: "رعوي/تنموي", goal: "تعزيز التماسك الاجتماعي والتفاعل.", activities: "تنظيم فعاليات ثقافية واجتماعية، توفير مساحة للأنشطة الترفيهية." },
+            { name: "مشروع 'التعليم الرقمي للجميع'", type: "تنموي", goal: "سد الفجوة الرقمية وتوفير التعليم عن بعد.", activities: "توفير أجهزة حاسوب، دورات استخدام الإنترنت، منصة تعليمية محلية." },
+            { name: "برنامج 'كفالة الأيتام والأسر المتعففة'", type: "رعوي", goal: "توفير الدعم المالي والمعنوي.", activities: "تقديم كفالات شهرية، توفير مستلزمات الدراسة، برامج دعم نفسي." },
+            { name: "مبادرة 'بيت العمر'", type: "رعوي/تنموي", goal: "المساهمة في توفير سكن كريم.", activities: "ترميم منازل، المساهمة في بناء وحدات بسيطة، استشارات صيانة." },
+            { name: "مشروع 'الطاقة المتجددة للمنازل'", type: "تنموي", goal: "تشجيع استخدام الطاقة الشمسية.", activities: "ورش توعوية، دعم جزئي لتركيب ألواح، شراكة مع شركات متخصصة." },
+            { name: "برنامج 'دعم المشاريع متناهية الصغر'", type: "تنموي", goal: "تحفيز ريادة الأعمال وتوفير دخل.", activities: "تقديم قروض حسنة، تدريب على إدارة المشاريع، ربط بالأسواق." },
+            { name: "مبادرة 'صحة كبار السن'", type: "رعوي", goal: "توفير الرعاية الصحية والاجتماعية لكبار السن.", activities: "زيارات دورية للمنازل، فعاليات اجتماعية، دعم نفسي." },
+            { name: "مشروع 'إعادة تدوير النفايات'", type: "تنموي", goal: "تعزيز الوعي البيئي وتقليل النفايات.", activities: "حملات توعية، توفير نقاط تجميع، ورش تحويل مواد." },
+            { name: "برنامج 'تأهيل ذوي الإعاقة'", type: "رعوي/تنموي", goal: "دعم وتأهيل ذوي الإعاقة لدمجهم.", activities: "جلسات علاج طبيعي، دورات مهارات حياة، برامج توعية مجتمعية." },
+            { name: "مبادرة 'المرشد السياحي المحلي'", type: "تنموي", goal: "تدريب شباب ليصبحوا مرشدين سياحيين.", activities: "دورات تدريبية، ربط بالزوار، تطوير مسارات سياحية." },
+            { name: "مشروع 'تطوير المنتجات الحرفية'", type: "تنموي", goal: "دعم الحرفيين وتطوير منتجاتهم.", activities: "ورش عمل لتطوير التصميم، مساعدة في التسويق الإلكتروني، توفير مواد خام." },
+            { name: "برنامج 'الوعي المالي للأسر'", type: "تنموي", goal: "تثقيف الأسر حول إدارة الميزانية.", activities: "ورش عمل تخطيط مالي، نصائح ادخار واستثمار، توعية بمخاطر الديون." },
+            { name: "مبادرة 'صيانة المساجد والمرافق العامة'", type: "رعوي", goal: "المساهمة في صيانة ونظافة المرافق.", activities: "حملات تطوعية، توفير مستلزمات نظافة، تنسيق مع الجهات." },
+            { name: "مشروع 'بناء القدرات للجمعيات الصغيرة'", type: "تنموي", goal: "دعم الجمعيات والمبادرات الأهلية.", activities: "ورش عمل إدارة مالية، جمع تبرعات، كتابة مشاريع، استشارات." },
+            { name: "برنامج 'كسوة الشتاء والصيف'", type: "رعوي", goal: "توفير الملابس الأساسية للأسر المحتاجة.", activities: "جمع وتوزيع الملابس الجديدة والمستعملة بحالة جيدة، حملات توعية بأهمية التبرع بالملابس." },
+            { name: "مشروع 'إفطار الصائم'", type: "رعوي", goal: "توفير وجبات إفطار للصائمين خلال شهر رمضان.", activities: "تجهيز وتوزيع وجبات إفطار جاهزة، إقامة موائد إفطار جماعية، الشراكة مع المطاعم المحلية." },
+            { name: "مبادرة 'سقيا الماء'", type: "رعوي", goal: "توفير المياه النظيفة للشرب في الأماكن العامة والمحتاجة.", activities: "توزيع عبوات مياه، تركيب مبردات مياه في الأماكن العامة، حفر آبار صغيرة (بعد دراسة)." },
+            { name: "برنامج 'مساعدة المرضى'", type: "رعوي", goal: "توفير الدعم للمرضى المحتاجين.", activities: "المساهمة في تكاليف العلاج والأدوية، توفير أجهزة طبية مساعدة، تنظيم قوافل طبية." },
+            { name: "دعم الأسر المنتجة", type: "تنموي", goal: "تمكين الأسر من تحقيق الاكتفاء الذاتي من خلال مشاريع منزلية.", activities: "تدريب على مهارات الإنتاج، توفير المواد الخام، المساعدة في تسويق المنتجات." },
+            { name: "إغاثة المتضررين", type: "رعوي", goal: "تقديم المساعدة العاجلة للمتضررين من الكوارث.", activities: "توفير المأوى المؤقت، الغذاء، والاحتياجات الأساسية، التنسيق مع الجهات الرسمية." },
+            { name: "كفالة طالب علم", type: "رعوي", goal: "دعم الطلاب المحتاجين لاستكمال تعليمهم.", activities: "توفير الرسوم الدراسية، الكتب، واللوازم المدرسية، دعم الدروس الخصوصية." },
+            { name: "تأهيل المساكن المتضررة", type: "رعوي", goal: "إعادة تأهيل المنازل غير الصالحة للسكن.", activities: "إصلاح الأضرار الهيكلية، تجديد المرافق الأساسية (كهرباء، سباكة)، توفير الأثاث الأساسي." },
+            { name: "دعم المقبلين على الزواج", type: "رعوي", goal: "مساعدة الشباب على تكاليف الزواج.", activities: "تقديم مساعدات مالية، دورات تأهيلية للمقبلين على الزواج، توفير مستلزمات منزلية أساسية." },
+            { name: "برنامج الإفراج عن الغارمين", type: "رعوي", goal: "مساعدة المعسرين في سداد ديونهم.", activities: "دراسة حالات الغارمين، جمع التبرعات لسداد الديون، التنسيق مع الجهات القانونية." },
+            { name: "مبادرة 'صناعة المحتوى الرقمي'", type: "تنموي", goal: "تدريب الشباب على إنتاج محتوى رقمي هادف.", activities: "ورش عمل في التصوير والمونتاج، الكتابة الإبداعية، التسويق الرقمي، دعم منصات المحتوى." },
+            { name: "برنامج 'الزراعة المائية المنزلية'", type: "تنموي", goal: "نشر ثقافة الزراعة المائية لترشيد المياه.", activities: "توزيع مجموعات زراعة مائية صغيرة، ورش عمل تدريبية، دعم فني للمستفيدين." },
+            { name: "مشروع 'تطوير المزارع الصغيرة'", type: "تنموي", goal: "تحسين إنتاجية المزارع الصغيرة ودعم المزارعين.", activities: "تقديم استشارات زراعية، توفير بذور وأسمدة، دعم تقنيات الري الحديثة." },
+            { name: "مركز 'دعم الابتكار المجتمعي'", type: "تنموي", goal: "تشجيع الأفكار الإبداعية والمشاريع المجتمعية.", activities: "توفير مساحة للعمل المشترك، جلسات عصف ذهني، ربط بالمختصين، دعم المشاريع الناشئة." },
+            { name: "مبادرة 'الوعي القانوني'", type: "تنموي", goal: "زيادة الوعي بالحقوق والواجبات القانونية.", activities: "ورش عمل قانونية، استشارات مجانية، نشر مواد توعوية مبسطة." },
+            { name: "برنامج 'صحة البيئة المدرسية'", type: "تنموي", goal: "تحسين البيئة الصحية في المدارس.", activities: "حملات نظافة، توفير مستلزمات صحية، توعية الطلاب والمعلمين بأهمية النظافة." },
+            { name: "مشروع 'تطوير البنية التحتية للمياه'", type: "تنموي", goal: "المساهمة في تحسين شبكات المياه والصرف الصحي.", activities: "إصلاح التسربات، تركيب فلاتر مياه، توعية بترشيد استهلاك المياه (بشراكة مع الجهات)." },
+            { name: "مبادرة 'السياحة البيئية المحلية'", type: "تنموي", goal: "تنمية الوعي البيئي وتشجيع السياحة المستدامة.", activities: "تنظيم رحلات استكشافية للمناطق الطبيعية، ورش عمل عن الحفاظ على البيئة، تطوير مسارات للمشي." },
+            { name: "برنامج 'تنمية المهارات القيادية للشباب'", type: "تنموي", goal: "إعداد جيل من القادة الشباب.", activities: "دورات تدريبية في القيادة والتواصل وحل المشكلات، برامج توجيه وإرشاد، مشاريع مجتمعية يقودها الشباب." },
+            { name: "مشروع 'الاستفادة من المخلفات الزراعية'", type: "تنموي", goal: "تحويل المخلفات الزراعية إلى موارد قيمة.", activities: "ورش عمل عن صناعة الأسمدة العضوية، إنتاج الوقود الحيوي، أو علف الحيوانات من المخلفات." }
+        ];
+
+        const projectsContainer = document.getElementById('projects-container');
+        const filterButtons = document.querySelectorAll('#projects .nav-link');
+
+        function renderProjects(filterType = 'all') {
+            projectsContainer.innerHTML = '';
+            const filteredProjects = projectsData.filter(project => {
+                if (filterType === 'all') return true;
+                if (filterType === 'welfare' && (project.type === 'رعوي' || project.type === 'رعوي/تنموي')) return true;
+                if (filterType === 'developmental' && (project.type === 'تنموي' || project.type === 'رعوي/تنموي')) return true;
+                return false;
+            });
+
+            filteredProjects.forEach(project => {
+                const projectCard = document.createElement('div');
+                projectCard.className = 'project-card';
+                let typeClass = '';
+                if (project.type === 'رعوي') typeClass = 'type-welfare';
+                else if (project.type === 'تنموي') typeClass = 'type-developmental';
+                else if (project.type === 'رعوي/تنموي') typeClass = 'type-welfare'; 
+
+                projectCard.innerHTML = `
+                    <span class="project-type-tag ${typeClass}">${project.type}</span>
+                    <h5 class="font-bold text-lg mb-2 text-[#3A3A3A]">${project.name}</h5>
+                    <p class="text-gray-700 mb-2">${project.goal}</p>
+                    <p class="text-gray-500 text-sm">${project.activities}</p>
+                `;
+                projectsContainer.appendChild(projectCard);
+            });
+        }
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                renderProjects(this.dataset.filter);
+            });
+        });
+
+        renderProjects('all');
+
+        const welfareCount = projectsData.filter(p => p.type === 'رعوي' || p.type === 'رعوي/تنموي').length;
+        const developmentalCount = projectsData.filter(p => p.type === 'تنموي' || p.type === 'رعوي/تنموي').length;
+
+        const projectTypeCtx = document.getElementById('projectTypeChart').getContext('2d');
+        new Chart(projectTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['مشاريع رعوية', 'مشاريع تنموية'],
+                datasets: [{
+                    data: [welfareCount, developmentalCount],
+                    backgroundColor: ['#A3B18A', '#6B705C'], 
+                    borderColor: '#FFFFFF',
+                    borderWidth: 4,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: 'Tajawal', size: 14 },
+                            boxWidth: 15,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        titleFont: { family: 'Tajawal' },
+                        bodyFont: { family: 'Tajawal' },
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                return item.label;
+                            },
+                            label: function(tooltipItem) {
+                                const value = tooltipItem.raw;
+                                return `${tooltipItem.label}: ${value} مشروع`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('#nav-links a');
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) { 
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
